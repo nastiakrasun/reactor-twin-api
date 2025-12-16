@@ -117,6 +117,7 @@ public class ReactorTwinRepositoryTests : IDisposable
         // Assert
         Assert.True(result);
         var updated = await _dbContext.ReactorTwins.FindAsync(reactor.Id);
+        Assert.NotNull(updated);
         Assert.Equal("New Name", updated.Name);
         Assert.Equal("New Model", updated.Model);
     }
