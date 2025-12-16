@@ -1,0 +1,6 @@
+@ReactorTwinAPI_HostAddress = http://localhost:5039
+
+GET {{ReactorTwinAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

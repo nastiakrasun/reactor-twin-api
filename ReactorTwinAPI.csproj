@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>48c33b1b-e6f3-4657-baf4-e1a27ff1dd6c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+  <PackageReference Include="BCrypt.Net-Next" Version="4.0.2" />
+  <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+  <PackageReference Include="FluentValidation" Version="12.1.0" />
+  <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    <PrivateAssets>all</PrivateAssets>
+  </PackageReference>
+  <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.1.2" />
+  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+  <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
+  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ReactorTwinAPI.Tests/**/*.cs" />
+  </ItemGroup></Project>

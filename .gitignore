@@ -1,0 +1,6 @@
+## Ignore Visual Studio temporary files, build outputs and user-specific files
+# See https://github.com/dotnet/runtime/blob/main/.gitignore for reference
+
+# Build output
+bin/
+obj/
