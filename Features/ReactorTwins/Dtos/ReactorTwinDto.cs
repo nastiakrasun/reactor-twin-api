@@ -22,6 +22,6 @@ namespace ReactorTwinAPI.Features.ReactorTwins.Dtos
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public Guid OwnerId { get; set; }
-        public Users.Dtos.UserDto? Owner { get; set; }
+        public Users.Dtos.UserDto Owner { get; set; }
     }
 }

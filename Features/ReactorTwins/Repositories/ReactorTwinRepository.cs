@@ -25,6 +25,8 @@ namespace ReactorTwinAPI.Features.ReactorTwins.Repositories
             _db.ReactorTwins.Add(reactor);
             await _db.SaveChangesAsync();
 
+            await _db.Entry(reactor).Reference(r => r.Owner).LoadAsync();
+
             return _mapper.Map<ReactorTwinDto>(reactor);
         }
 
@@ -41,13 +43,13 @@ namespace ReactorTwinAPI.Features.ReactorTwins.Repositories
 
         public async Task<IEnumerable<ReactorTwinDto>> GetAllAsync()
         {
-            var list = await _db.ReactorTwins.ToListAsync();
+            var list = await _db.ReactorTwins.Include(r => r.Owner).ToListAsync();
             return list.Select(MapToDto);
         }
 
         public async Task<ReactorTwinDto?> GetByIdAsync(Guid id)
         {
-            var e = await _db.ReactorTwins.FirstOrDefaultAsync(x => x.Id == id);
+            var e = await _db.ReactorTwins.Include(r => r.Owner).FirstOrDefaultAsync(x => x.Id == id);
             return e == null ? null : MapToDto(e);
         }
 

@@ -43,6 +43,9 @@ public class ReactorTwinRepositoryTests : IDisposable
         // Arrange
         var createDto = new CreateReactorTwinDto { Name = "Test Reactor", Model = "Model1", SerialNumber = "SN123", ReactorType = "Type1", FuelType = "Fuel1", CoolingSystemType = "Cooling1" };
         var ownerId = Guid.NewGuid();
+        var owner = new User { Id = ownerId, Username = "testuser", PasswordHash = "hash" };
+        _dbContext.Users.Add(owner);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         var result = await _repository.CreateAsync(createDto, ownerId);
@@ -53,13 +56,19 @@ public class ReactorTwinRepositoryTests : IDisposable
         Assert.Equal("Model1", result.Model);
         Assert.Equal(ownerId, result.OwnerId);
         Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.NotNull(result.Owner);
+        Assert.Equal(ownerId, result.Owner.Id);
+        Assert.Equal("testuser", result.Owner.Username);
     }
 
     [Fact]
     public async Task GetByIdAsync_ExistingId_ReturnsReactor()
     {
         // Arrange
-        var reactor = new ReactorTwin { Id = Guid.NewGuid(), Name = "Test Reactor", Model = "Model1", SerialNumber = "SN123", ReactorType = "Type1", FuelType = "Fuel1", CoolingSystemType = "Cooling1", OwnerId = Guid.NewGuid() };
+        var ownerId = Guid.NewGuid();
+        var owner = new User { Id = ownerId, Username = "testuser", PasswordHash = "hash" };
+        _dbContext.Users.Add(owner);
+        var reactor = new ReactorTwin { Id = Guid.NewGuid(), Name = "Test Reactor", Model = "Model1", SerialNumber = "SN123", ReactorType = "Type1", FuelType = "Fuel1", CoolingSystemType = "Cooling1", OwnerId = ownerId };
         _dbContext.ReactorTwins.Add(reactor);
         await _dbContext.SaveChangesAsync();
 
@@ -70,6 +79,9 @@ public class ReactorTwinRepositoryTests : IDisposable
         Assert.NotNull(result);
         Assert.Equal(reactor.Id, result.Id);
         Assert.Equal("Test Reactor", result.Name);
+        Assert.NotNull(result.Owner);
+        Assert.Equal(ownerId, result.Owner.Id);
+        Assert.Equal("testuser", result.Owner.Username);
     }
 
     [Fact]
@@ -86,8 +98,13 @@ public class ReactorTwinRepositoryTests : IDisposable
     public async Task GetAllAsync_ReturnsAllReactors()
     {
         // Arrange
-        var reactor1 = new ReactorTwin { Id = Guid.NewGuid(), Name = "Reactor 1", Model = "Model1", SerialNumber = "SN1", ReactorType = "Type1", FuelType = "Fuel1", CoolingSystemType = "Cooling1", OwnerId = Guid.NewGuid() };
-        var reactor2 = new ReactorTwin { Id = Guid.NewGuid(), Name = "Reactor 2", Model = "Model2", SerialNumber = "SN2", ReactorType = "Type2", FuelType = "Fuel2", CoolingSystemType = "Cooling2", OwnerId = Guid.NewGuid() };
+        var ownerId1 = Guid.NewGuid();
+        var owner1 = new User { Id = ownerId1, Username = "user1", PasswordHash = "hash1" };
+        var ownerId2 = Guid.NewGuid();
+        var owner2 = new User { Id = ownerId2, Username = "user2", PasswordHash = "hash2" };
+        _dbContext.Users.AddRange(owner1, owner2);
+        var reactor1 = new ReactorTwin { Id = Guid.NewGuid(), Name = "Reactor 1", Model = "Model1", SerialNumber = "SN1", ReactorType = "Type1", FuelType = "Fuel1", CoolingSystemType = "Cooling1", OwnerId = ownerId1 };
+        var reactor2 = new ReactorTwin { Id = Guid.NewGuid(), Name = "Reactor 2", Model = "Model2", SerialNumber = "SN2", ReactorType = "Type2", FuelType = "Fuel2", CoolingSystemType = "Cooling2", OwnerId = ownerId2 };
         _dbContext.ReactorTwins.AddRange(reactor1, reactor2);
         await _dbContext.SaveChangesAsync();
 
@@ -99,13 +116,20 @@ public class ReactorTwinRepositoryTests : IDisposable
         Assert.Equal(2, list.Count);
         Assert.Contains(list, r => r.Name == "Reactor 1");
         Assert.Contains(list, r => r.Name == "Reactor 2");
+        foreach (var r in list)
+        {
+            Assert.NotNull(r.Owner);
+        }
     }
 
     [Fact]
     public async Task UpdateAsync_ExistingId_UpdatesReactor()
     {
         // Arrange
-        var reactor = new ReactorTwin { Id = Guid.NewGuid(), Name = "Old Name", Model = "Old Model", SerialNumber = "SN123", ReactorType = "Type1", FuelType = "Fuel1", CoolingSystemType = "Cooling1", OwnerId = Guid.NewGuid() };
+        var ownerId = Guid.NewGuid();
+        var owner = new User { Id = ownerId, Username = "testuser", PasswordHash = "hash" };
+        _dbContext.Users.Add(owner);
+        var reactor = new ReactorTwin { Id = Guid.NewGuid(), Name = "Old Name", Model = "Old Model", SerialNumber = "SN123", ReactorType = "Type1", FuelType = "Fuel1", CoolingSystemType = "Cooling1", OwnerId = ownerId };
         _dbContext.ReactorTwins.Add(reactor);
         await _dbContext.SaveChangesAsync();
 
@@ -116,10 +140,12 @@ public class ReactorTwinRepositoryTests : IDisposable
 
         // Assert
         Assert.True(result);
-        var updated = await _dbContext.ReactorTwins.FindAsync(reactor.Id);
+        var updated = await _dbContext.ReactorTwins.Include(r => r.Owner).FirstOrDefaultAsync(r => r.Id == reactor.Id);
         Assert.NotNull(updated);
         Assert.Equal("New Name", updated.Name);
         Assert.Equal("New Model", updated.Model);
+        Assert.NotNull(updated.Owner);
+        Assert.Equal(ownerId, updated.Owner.Id);
     }
 
     [Fact]
